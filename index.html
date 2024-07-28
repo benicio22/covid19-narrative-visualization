@@ -6,17 +6,18 @@
     <script src='https://d3js.org/d3.v5.min.js'></script>
     <style>
         rect { fill: mediumaquamarine; stroke: black; }
-        p.stats { position: absolute; left: 5px; top: 250px; }
-        select { position: absolute; left: 5px; top: 290px; }
-        div.slide { position: absolute; left: 5px; top: 220px; }
         .scene { font-size: 18px; margin-bottom: 20px; }
+        .slide { margin-top: 20px; }
+        .buttons { margin-top: 20px; }
+        #prevScene, #nextScene { margin: 5px; }
+        svg { border: 1px solid #ccc; }
     </style>
 </head>
 <body>
-    <h1>COVID-19 Impact Visualization</h1>
+    <h1>Overall Impacts of COVID-19</h1>
     <hr>
     <div class="scene" id="scene-description"></div>
-    <div class="slide">
+    <div class="buttons">
         <button type="button" id="prevScene">Prev</button>
         <button type="button" id="nextScene">Next</button>
     </div>
@@ -24,17 +25,17 @@
     <script>
         let scenes = [
             {
-                title: "Scene 1: Number of Cases",
+                title: "Number of Cases",
                 description: "The CDC gov website definitively stated on May 1st, 2024, that hospitals are no longer required to report any data related to the admission of patients with the Coronavirus (COVID-19) to the Department of Health and Human Services (HHS) through the CDC's National Healthcare Safety Network (NHSN). However, the CDC demands that hospitals report any data related to the pandemic voluntarily. The global impact of the pandemic is undeniable. Since 2020, it has had a significant impact on health, economies, and the population's daily lives. The number of cases skyrocketed, especially during 2020 and 2021. This led to a surge in severe cases and mortality rates. However, the widespread vaccination campaigns have undoubtedly reduced these rates. Despite these advances, the world still faces the challenge of the ongoing circulation of the virus, with periodic surges attributed to new variants. Nevertheless, the world's health systems remain vigilant and committed to monitoring and maintaining efforts to manage the virus while addressing other public health needs.",
                 dataKey: 'cases'
             },
             {
-                title: "Scene 2: Deaths",
+                title: "Deaths",
                 description: "The number of deaths is also a key factor. We must consider other metrics, such as the number of deaths. The number of deaths reached its highest point in January 2021, before the vaccination program was implemented. A second peak occurred one year later, in January 2022, due to the emergence of the Delta variant. Knowing the number of deaths from COIVD-19 is essential for understanding the severity of the pandemic and its impact on public health. This information is essential for understanding the effectiveness of interventions, allocating medical resources, and prioritizing vaccination efforts. It is essential that accurate death numbers inform health guidelines, ensuring they are based on the most severe outcomes.",
                 dataKey: 'deaths'
             },
             {
-                title: "Scene 3: Mortality Rate",
+                title: "Mortality Rate",
                 description: "The mortality rate is the proportion of deaths among confirmed cases of COIVD-19. It provides a comprehensive and precise understanding of the virus's lethality and public health impact. The mortality rate is the only way to compare the severity of the pandemic across different regions, periods, and population groups. The number of deaths does not provide this information. The graphic clearly shows that the mortality rate reached its highest point in February 2020, at the start of the pandemic. At that time, there were no preventive measures in place, so the authorities had no choice but to put entire countries under lockdown. A few months later, the mortality rate was drastically reduced and remained relatively low until early 2021. This was caused by increased gatherings due to the holidays and the spread of the Delta variant, which is known to be more deadly than the previous variants. Another peak occurred around March 2022 due to several states relaxing pandemic preventive measures such as the mandatory use of face masks.",
                 dataKey: 'mortality'
             }
