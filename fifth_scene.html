@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>CS416 - Luana M. Benicio</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<button onclick="window.location.href = 'fourth_scene.html';"> Previous </button> 
+<button onclick="window.location.href = 'sixth_scene.html';"> Next </button> 
+
+
+  
+<body>
+  <h1>Scenario of COVID-19</h1>
+  <h2>Time to explore: number of deaths</h2>
+  <p>Check with details the number of deaths.</p>
+
+  <button id="reset-zoom-btn">Reset View</button>
+  
+  <svg width="900" height="500"></svg>
+    
+  <script src='https://d3js.org/d3.v5.min.js'></script>
+  <script src="https://rawgit.com/susielu/d3-annotation/master/d3-annotation.min.js"></script>
+
+  <script>
+    async function init() {
+      // Fetch the CSV data
+      const response = await fetch('https://raw.githubusercontent.com/benicio22/covid19-narrative-visualization/main/covid_data.csv');
+      const dataset = await response.text();
+
+      // Parse the CSV data
+      const parsedData = d3.csvParse(dataset, d3.autoType);
+
+      // Set up the dimensions of the graph
+      const margin = { top: 20, right: 20, bottom: 80, left: 80 };
+      const width = 800;
+      const height = 400;
+
+      // Parse the date format
+      const parseDate = d3.timeParse('%m/%d/%Y');
+
+      // Format the date on the x-axis
+      const formatDate = d3.timeFormat('%b %Y');
+
+      // Create the x and y scales
+      const xScale = d3.scaleTime().range([0, width]);
+      const yScale = d3.scaleLinear().range([height, 0]);
+
+      // Append the graph to the SVG
+      const svg = d3.select('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left}, ${margin.top})`);
+
+      // Convert date strings to date objects
+      parsedData.forEach(d => {
+        d.date = parseDate(d.date);
+        d.deaths = +d.deaths;
+      });
+
+      // Set the domain of the x and y scales
+      xScale.domain(d3.extent(parsedData, d => d.date));
+      yScale.domain([0, 5500]);
+
+      // Add the x-axis
+      const xAxis = svg.append('g')
+        .attr('transform', `translate(0, ${height})`)
+        .call(d3.axisBottom(xScale).tickFormat(formatDate));
+
+      // Add the y-axis
+      const yAxis = svg.append('g')
+        .call(d3.axisLeft(yScale));
+
+      // Add the circles to the graph
+      const scatter = svg.selectAll("circle")
+        .data(parsedData)
+        .enter()
+        .append("circle")
+        .attr("r", 3)
+        .attr("fill", "#003366")
+        .style("opacity", 0.6)
+        .style("stroke", "white")
+        .attr("cx", d => xScale(d.date))
+        .attr("cy", d => yScale(d.deaths))
+
+
+      // Add x-axis label
+      svg.append('text')
+        .attr('class', 'x-axis-label')
+        .attr('x', width / 2)
+        .attr('y', height + margin.top + 35)
+        .attr('text-anchor', 'middle')
+        .attr('font-size', '12px')
+        .text('Period (months)');
+
+      // Add y-axis label
+      svg.append('text')
+        .attr('class', 'y-axis-label')
+        .attr('transform', 'rotate(-90)')
+        .attr('x', -height / 2)
+        .attr('y', -margin.left + 20)
+        .attr('text-anchor', 'middle')
+        .attr('font-size', '12px')
+        .text('Number of Deaths');
+
+      var zoom = d3.zoom()
+        .scaleExtent([.5, 20])
+        .translateExtent([[0, 0], [width, height]])
+        .on("zoom", updateChart);
+
+      svg.append("rect")
+        .attr("width", width)
+        .attr("height", height)
+        .style("fill", "none")
+        .style("opacity", 0.2)
+        .style("pointer-events", "all")
+        .attr('transform', `translate(${margin.left}, ${margin.top})`)
+        .call(zoom);
+
+      // A function that updates the chart when the user zooms and new boundaries are available
+      function updateChart() {
+        // Recover the new scale
+        var newX = d3.event.transform.rescaleX(xScale);
+        var newY = d3.event.transform.rescaleY(yScale);
+
+        // Update axes with these new boundaries
+        xAxis.call(d3.axisBottom(newX).tickFormat(formatDate));
+        yAxis.call(d3.axisLeft(newY));
+
+        // Filter data points that fall within the visible range after zooming
+        var visibleData = parsedData.filter(function(d) {
+          return newX(d.date) >= 0 && newX(d.date) <= width && newY(d.deaths) >= 0 && newY(d.deaths) <= height;
+        });
+
+        // Update circle positions
+        scatter.attr('cx', function(d) { return newX(d.date); })
+               .attr('cy', function(d) { return newY(d.deaths); })
+               .style('display', function(d) {
+                 return visibleData.includes(d) ? 'block' : 'none';
+               });
+      }
+
+      // Function to reset the zoom
+      function resetZoom() {
+        // Reset the zoom transform to its initial state
+        svg.transition().duration(750).call(zoom.transform, d3.zoomIdentity);
+      }
+
+      // Add the event listener to the button
+      document.getElementById('reset-zoom-btn').addEventListener('click', resetZoom);
+    }
+
+    // Call the init function to start the graph creation
+    init();
+  </script>
+</body>
+</html>
